@@ -47,8 +47,26 @@ def orb(imga, imgb, x, y, success, fail):
     good_matches = [m for m in matches if m.distance < 30]  # 調整距離閾值
     if len(good_matches) < 10:  # 這裡的數量閾值可以根據需要調整
         print(success)
-        pyautogui.click(x, y)
 
+        src_points = np.float32([keypointsA[m.queryIdx].pt for m in good_matches])
+        dst_points = np.float32([keypointsB[m.trainIdx].pt for m in good_matches])
+    
+        # 計算仿射變換
+        matrix, mask = cv2.estimateAffine2D(src_points, dst_points)
+    
+        # 獲取圖片A的尺寸
+        h, w = imgA.shape[:2]
+    
+        # 獲取圖片A在螢幕上的位置
+        if matrix is not None:
+            # 計算左上角的點
+            top_left = np.array([[0, 0, 1]]).T
+            transformed_top_left = matrix @ top_left
+    
+            # 在螢幕上顯示位置
+            print(f"圖片A的位置: 左上角 ({int(transformed_top_left[0])}, {int(transformed_top_left[1])})")
+            pyautogui.click(x, y)
+    
     else:
         print(fail)
 
@@ -65,15 +83,7 @@ def leave_button(x, y):
     orb(leave, leave_B, x, y, '已進入釣魚狀態！', '未進入釣魚狀態。')
 
 def set_fish(x, y):
-    location = pyautogui.locateOnScreen(setfish, confidence=0.8)
-
-    if location:
-        print(f'找到圖片的位置: {location}')
-        # print(location[0], location[1])
-    else:
-        print('圖片未找到。')
-
-    pyautogui.moveTo(location[0], location[1], duration = num_seconds)
+    # pyautogui.moveTo(location[0], location[1], duration = num_seconds)
     
     setfish_B = pyautogui.screenshot()
     setfish_B = cv2.cvtColor(np.array(setfish_B), cv2.COLOR_RGB2BGR)
