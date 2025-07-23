@@ -1,4 +1,7 @@
-# Windows
+># Windows
+
+## Description
+Use **pyautogui** to automate the mouse and keyboard
 
 ## Install
 
